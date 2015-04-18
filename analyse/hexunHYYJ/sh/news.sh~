@@ -1,0 +1,38 @@
+#!/bin/bash
+#definde
+urlname=../temp/urlname.txt
+urlnameTemp=../temp/urlnameTemp.txt
+urlTemp=../temp/urlTemp.txt
+timeTemp=../temp/timeTemp.txt
+nameTemp=../temp/nameTemp.txt
+codeTemp=../temp/codeTemp.txt
+index=./index.html
+url=../src/url.txt
+name=../src/name.txt
+time=../src/time.txt
+code=../src/code.txt
+urlHead="http://finance.qq.com/"
+
+
+nowTime=$(date)
+#mv $index ./src/indexHistory/$nowTime.html
+
+curl "http://finance.qq.com/usstock/" -o index.html
+
+#url&&name
+awk -F '<h3><a target="_blank" href="' 'NF>1{print $2}' ./index.html|awk -F '/a></h3>' 'NF>1{printf $1}'>$urlnameTemp
+echo $(cat $urlnameTemp)|sed -e 's/"//g'|sed -e 's/</\n/g'|sed -e 's/>/\n/g'>$urlname
+
+#url
+awk 'NR%2' $urlname>$url
+
+#name
+awk '!(NR%2)' $urlname>$name
+
+#time
+awk -F '<span class="newsInfo date">' 'NF>1{print $2}' ./index.html|awk -F 'span>' 'NF>1{printf $1}'|sed -e 's/title/\n/g'>$timeTemp
+awk -F '|' 'NF>1{print $2}' $timeTemp|awk -F '/' 'NF>1{printf $1}'>../temp/time.txt
+catTime=$(cat ../temp/time.txt)
+echo $catTime|sed -e 's/< /\n/g'|sed -e 's/<//g'>$time
+
+
